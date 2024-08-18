@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+final formatterDate = DateFormat.yMd();
+
 const uuid = Uuid();
 
 final formatter = DateFormat.yMd();
@@ -33,4 +35,29 @@ class Expanse {
   String get formattedDate {
     return formatter.format(date);
   }
+}
+
+class ExpanseBucket {
+  //
+  const ExpanseBucket({
+    required this.category,
+    required this.expanse,
+  });
+
+  ExpanseBucket.forCategory(List<Expanse> allExpanses, this.category)
+      : expanse = allExpanses
+            .where((expanse) => expanse.category == category)
+            .toList();
+
+  final Category category;
+  final List<Expanse> expanse;
+
+  double get totalExpanse {
+    double sum = 0;
+    for (final expanse in expanse) {
+      sum += expanse.amount;
+    }
+    return sum;
+  }
+  //
 }
