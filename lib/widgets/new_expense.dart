@@ -1,7 +1,8 @@
+import 'dart:io';
+
 import 'package:expanse_tracker/models/expanse.dart';
-import 'package:expanse_tracker/widgets/expanses.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/cupertino.dart';
 
 class NewExpense extends StatefulWidget {
   const NewExpense({super.key, required this.onAddExpense});
@@ -39,6 +40,47 @@ class _NewExpenseState extends State<NewExpense> {
   }
 
   // Please make sure a valid title, amount, date and category was enetered.
+  void _showDialog() {
+    //
+    // if (Platform.isIOS) {
+    //   showCupertinoDialog(
+    //     context: context,
+    //     builder: (context) => CupertinoAlertDialog(
+    //       //
+    //       title: const Text('Invalid Input.'),
+    //       content: const Text(
+    //         'Please make sure a valid title, amount, date and category was enetered.',
+    //       ),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () {
+    //             Navigator.pop(context);
+    //           },
+    //           child: const Text('Okay'),
+    //         )
+    //       ],
+    //     ),
+    //   );
+    // } else {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Invalid Input.'),
+        content: const Text(
+          'Please make sure a valid title, amount, date and category was enetered.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Okay'),
+          )
+        ],
+      ),
+    );
+    // }
+  }
 
   void _submitExpenseData() {
     //
@@ -47,25 +89,7 @@ class _NewExpenseState extends State<NewExpense> {
     if (_titleController.text.trim().isEmpty ||
         amountIsInvalid ||
         _selectedDate == null) {
-      // show error message
-
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Invalid Input.'),
-          content: const Text(
-            'Please make sure a valid title, amount, date and category was enetered.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Okay'),
-            )
-          ],
-        ),
-      );
+      _showDialog();
       return;
     }
 
@@ -93,7 +117,6 @@ class _NewExpenseState extends State<NewExpense> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final widthDevice = constraints.maxWidth;
-        ;
 
         print(constraints.minWidth);
         print(constraints.maxWidth);
@@ -153,6 +176,53 @@ class _NewExpenseState extends State<NewExpense> {
                   if (widthDevice >= 600)
                     Row(
                       children: [
+                        //
+                        DropdownButton(
+                          value: _selectedCategory,
+                          items: Category.values
+                              .map(
+                                (category) => DropdownMenuItem(
+                                  value: category,
+                                  child: Text(
+                                    category.name.toUpperCase(),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            if (value == null) {
+                              return;
+                            }
+                            setState(() {
+                              _selectedCategory = value;
+                            });
+                          },
+                        ),
+                        const SizedBox(
+                          width: 14,
+                        ),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                _selectedDate == null
+                                    ? 'No date selected'
+                                    : formatter.format(_selectedDate!),
+                              ),
+                              IconButton(
+                                onPressed: _presentDatePicker,
+                                icon: const Icon(Icons.calendar_month),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Row(
+                      children: [
                         Expanded(
                           child: TextField(
                             controller: _amountController,
@@ -169,62 +239,80 @@ class _NewExpenseState extends State<NewExpense> {
                           width: 16,
                         ),
                         Expanded(
-                            child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              _selectedDate == null
-                                  ? 'No date selected'
-                                  : formatter.format(_selectedDate!),
-                            ),
-                            IconButton(
-                              onPressed: _presentDatePicker,
-                              icon: const Icon(Icons.calendar_month),
-                            )
-                          ],
-                        ))
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                _selectedDate == null
+                                    ? 'No date selected'
+                                    : formatter.format(_selectedDate!),
+                              ),
+                              IconButton(
+                                onPressed: _presentDatePicker,
+                                icon: const Icon(Icons.calendar_month),
+                              )
+                            ],
+                          ),
+                        )
                       ],
                     ),
                   const SizedBox(
                     height: 16,
                   ),
-                  Row(
-                    children: [
-                      DropdownButton(
-                        value: _selectedCategory,
-                        items: Category.values
-                            .map(
-                              (category) => DropdownMenuItem(
-                                value: category,
-                                child: Text(
-                                  category.name.toUpperCase(),
+                  if (widthDevice >= 600)
+                    Row(
+                      children: [
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        ElevatedButton(
+                          onPressed: _submitExpenseData,
+                          child: const Text('Save Expense'),
+                        )
+                      ],
+                    )
+                  else
+                    Row(
+                      children: [
+                        DropdownButton(
+                          value: _selectedCategory,
+                          items: Category.values
+                              .map(
+                                (category) => DropdownMenuItem(
+                                  value: category,
+                                  child: Text(
+                                    category.name.toUpperCase(),
+                                  ),
                                 ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) {
-                          if (value == null) {
-                            return;
-                          }
-                          setState(() {
-                            _selectedCategory = value;
-                          });
-                        },
-                      ),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                      ElevatedButton(
-                        onPressed: _submitExpenseData,
-                        child: const Text('Save Expense'),
-                      )
-                    ],
-                  )
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            if (value == null) {
+                              return;
+                            }
+                            setState(() {
+                              _selectedCategory = value;
+                            });
+                          },
+                        ),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        ElevatedButton(
+                          onPressed: _submitExpenseData,
+                          child: const Text('Save Expense'),
+                        )
+                      ],
+                    )
                 ],
               ),
             ),

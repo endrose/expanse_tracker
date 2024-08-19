@@ -92,41 +92,43 @@ class _ExpansesState extends State<Expanses> {
     }
 
     return Scaffold(
-        // Toolbar with the add button => Row()
-        appBar: AppBar(
-          title: const Text('Flutter Expense Tracker'),
-          actions: [
-            //
-            IconButton(
-              onPressed: _openAddExpenseOverlay,
-              icon: const Icon(Icons.add),
-            ),
-          ],
-        ),
-        body: widthDevice < 600
-            ? Column(
-                children: [
-                  // const Text('The Chart!'),
-                  Chart(
+      // Toolbar with the add button => Row()
+      appBar: AppBar(
+        centerTitle: false,
+        title: const Text('Flutter Expense Tracker'),
+        actions: [
+          //
+          IconButton(
+            onPressed: _openAddExpenseOverlay,
+            icon: const Icon(Icons.add),
+          ),
+        ],
+      ),
+      body: widthDevice < 600
+          ? Column(
+              children: [
+                // const Text('The Chart!'),
+                Chart(
+                  expenses: _registerExpanses,
+                ),
+                Expanded(
+                  child: mainContent,
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                // const Text('The Chart!'),
+                Expanded(
+                  child: Chart(
                     expenses: _registerExpanses,
                   ),
-                  Expanded(
-                    child: mainContent,
-                  ),
-                ],
-              )
-            : Row(
-                children: [
-                  // const Text('The Chart!'),
-                  Expanded(
-                    child: Chart(
-                      expenses: _registerExpanses,
-                    ),
-                  ),
-                  Expanded(
-                    child: mainContent,
-                  ),
-                ],
-              ));
+                ),
+                Expanded(
+                  child: mainContent,
+                ),
+              ],
+            ),
+    );
   }
 }
